@@ -6,7 +6,6 @@ const path = require('path')
 
 const app = express();
 
-// set up static files
 app.use(express.static('static'));
 app.use(bodyParser.urlencoded())
 nunjucks.configure('static')
@@ -15,17 +14,13 @@ nunjucks.configure(path.join(__dirname, '/static'), {
     express: app,
     autoescape: true
 });
-
-// set port number to listen with
 app.listen(3000);
 
 app.get('/', (req, res) => {
     res.sendFile('index.html')
 })
 app.put('/', (req, res) => res.send('Received a PUT HTTP method'));
-
 app.delete('/', (req, res) => res.send('Received a DELETE HTTP method'));
-
 app.post('/', (req, res) => {
     async function scrape(email, password) {
         try {
@@ -143,22 +138,13 @@ app.post('/', (req, res) => {
         await page.click('body > div.RnEpo.Yx5HN > div > div:nth-child(1) > div > div:nth-child(3) > button > svg')
     
         const unfollowers = []
-        for (i = 0; i <= findFollowers2.length; i++) {
+        for (i = 0; i < findFollowers2.length; i++) {
           if (!findFollowers.includes(findFollowers2[i])) {
             unfollowers.push(findFollowers2[i])
           }
         }
         console.log('Unfollowers:\n', unfollowers)
 
-        /*user_profile = []
-        for (let i = 0; i <= unfollowers.length; i++) {
-          await page.goto('https://instagram.com/' + String(unfollowers[i]))
-          uf_pic = await page.$eval('#react-root > section > main > div > header > div > div > span > img', (elem) => {
-            return elem
-          })
-          user_profile.push((unfollowers[i], uf_pic))
-        }
-        console.log(user_profile)*/
         browser.close()
         return(unfollowers)
     
