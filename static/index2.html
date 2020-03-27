@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Minimal - Bootstrap Template</title>
+  <title>Get IG Unfollowers</title>
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
   <meta content="" name="keywords">
   <meta content="" name="description">
@@ -29,22 +29,33 @@
 
   <!-- ========== HEADER SECTION ========== -->
   <section id="home" name="home"></section>
+  <div id="overlay">
   <div id="headerwrap">
-    <div class="container">
+    <div class="row d-flex justify-content-center">
       <br>
       <div class="row2">
         <h1 class="i2title" style="margin-top: 0px; margin-bottom: -20px; font-size: 40px; font-weight: 550;">{{ amount + " accounts are not following you back!" }}</h1>
         <br>
         <br>
         <br>
-        <div class="col-lg-9" id="ufid">
-          <ul>
-          {% for person in unfollows %}
-            <li class="uflist"> <p> {{ person }} </p> </li>
-          {% endfor %}
-          </ul>
+        <div class="col-md-6">
+          <div class="row d-flex justify-content-center">
+            <div class="row">
+              <div class="col-lg-6 col-md-6 col-xs-12 col-sm-6">
+                <ul class="list-group">
+                {% for person in unfollows %}
+                <li class="list-group-item" id="uflist">
+                  <a href="{{ 'https://instagram.com/' + person }}">{{ person }}
+                  </a>
+                </li>
+              {% endfor %}
+              </ul>
+              </div>
+            </div> <!-- End row -->
+            </div> <!-- End container -->
         </div>
       </div>
+    </div>
     </div>
     <!-- /container -->
   </div>
