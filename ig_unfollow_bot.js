@@ -3,9 +3,8 @@ const puppeteer = require('puppeteer-extra');
 async function scrape(email, password) {
   try {
     const browser = await puppeteer.launch({
-      executablePath: '/usr/bin/google-chrome-stable',
+      executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
       args: [
-        '--incognito',
         '--no-sandbox',
         '--disable-setuid-sandbox',
         '--disable-infobars',
