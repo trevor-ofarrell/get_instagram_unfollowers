@@ -12,7 +12,7 @@ async function scrape(email, password) {
         '--ignore-certifcate-errors-spki-list',
         '--user-agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3312.0 Safari/537.36"'
       ],
-      headless: false,
+      headless: true,
   })
   const context = await browser.createIncognitoBrowserContext();
   const page = await context.newPage()
