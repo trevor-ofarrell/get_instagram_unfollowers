@@ -3,7 +3,7 @@ const puppeteer = require('puppeteer-extra');
 async function scrape(email, password) {
   try {
     const browser = await puppeteer.launch({
-      executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+      executablePath: '/usr/bin/google-chrome-stable',
       args: [
         '--no-sandbox',
         '--disable-setuid-sandbox',
@@ -12,7 +12,7 @@ async function scrape(email, password) {
         '--ignore-certifcate-errors-spki-list',
         '--user-agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3312.0 Safari/537.36"'
       ],
-      headless: true,
+      headless: false,
   })
   const context = await browser.createIncognitoBrowserContext();
   const page = await context.newPage()
@@ -21,32 +21,41 @@ async function scrape(email, password) {
     width: 800,
     height: 500
   });
+  // wait for the login page to load
   await page.waitForSelector(
-    '#react-root > section > main > article > div.rgFsT > div:nth-child(1) > div > form > div:nth-child(2) > div > label > input',
+    '#loginForm > div > div:nth-child(1) > div > label > input',
     { timeout: 5000 }
   )
-  await page.type('#react-root > section > main > article > div.rgFsT > div:nth-child(1) > div > form > div:nth-child(2) > div > label > input', email)
-  await page.waitForSelector('div.-MzZI:nth-child(3) > div:nth-child(1) > label:nth-child(1) > input:nth-child(2)', { timeout: 9000 })
-  await page.type('div.-MzZI:nth-child(3) > div:nth-child(1) > label:nth-child(1) > input:nth-child(2)', password)
+  // enter login credentials 
+  await page.type('#loginForm > div > div:nth-child(1) > div > label > input' , email)
+  await page.type('#loginForm > div > div:nth-child(2) > div > label > input', password)
   console.log('logged in')
+
   try {
     await page.waitForSelector('.L3NKy > div:nth-child(1)', {timeout: 4000})
   } catch { }
+
   await page.click('.L3NKy > div:nth-child(1)')
   await page.waitForSelector('#react-root > section > nav > div._8MQSO.Cx7Bp > div > div > div.oJZym > a > div > div > img',  { timeout: 9000 })
   await page.goto('https://www.instagram.com/trevorthegnar/')
   console.log('at profile')
+  // open follower pop up
   await page.click('#react-root > section > main > div > header > section > ul > li:nth-child(2) > a')
   try {
+    // wait for followers to load
     await page.waitForSelector('body > div.RnEpo.Yx5HN > div > div.isgrP > ul > div > li',  { timeout: 6000 })
   } catch {
+      // on fail it retrys
       console.log('first failure')
       await page.reload({ waitUntil: ["networkidle0", "domcontentloaded"] });
+      // open followers pop-up
       await page.click('#react-root > section > main > div > header > section > ul > li:nth-child(2) > a')
-      await page.waitForSelector('body > div.RnEpo.Yx5HN > div > div.isgrP > ul > div > li',  { timeout: 9000 })
+      // wait for followers to load
+      await page.waitForSelector('body > div.RnEpo.Yx5HN > div > div > div.isgrP > ul > div > li',  { timeout: 9000 })
       console.log('made it')
     }
 
+  // creates list of followers
   const extractFollowers = () => {
     let followers = [];
     let elements = document.getElementsByClassName('FPmhX notranslate _0imsa ');
@@ -55,6 +64,7 @@ async function scrape(email, password) {
     return followers;
   }
 
+  // scrolls through all followers/following and creates lists of them
   async function scrapeInfiniteScrollItems(
     page,
     extractFollowers,
@@ -79,12 +89,14 @@ async function scrape(email, password) {
   const findFollowers = await scrapeInfiniteScrollItems(page, extractFollowers, Number(follower_amount) - 1)
   //console.log(findFollowers, follower_amount);
 
-  await page.waitForSelector('body > div.RnEpo.Yx5HN > div > div:nth-child(1) > div > div:nth-child(3) > button > svg')
-  await page.click('body > div.RnEpo.Yx5HN > div > div:nth-child(1) > div > div:nth-child(3) > button > svg')
+  // wait for the close follower pop-up svg to load then click it
+  await page.waitForSelector('body > div.RnEpo.Yx5HN > div > div > div:nth-child(1) > div > div:nth-child(3) > button > div > svg')
+  await page.click('body > div.RnEpo.Yx5HN > div > div > div:nth-child(1) > div > div:nth-child(3) > button > div > svg')
+
+  //open following pop-up and wait for the items to load
   await page.click('#react-root > section > main > div > header > section > ul > li:nth-child(3) > a')
-  await page.waitForSelector('body > div.RnEpo.Yx5HN > div > div.isgrP > ul > div > li')
-  
-   
+  await page.waitForSelector('body > div.RnEpo.Yx5HN > div > div > div.isgrP > ul > div > li')
+
   const extractFollowing = () => {
     let followers = [];
     let elements = document.getElementsByClassName('FPmhX notranslate _0imsa ');
@@ -116,8 +128,8 @@ async function scrape(email, password) {
   })
   const findFollowers2 = await scrapeInfiniteScrollItems2(page, extractFollowing, Number(following_amount) - 1)
   console.log("made it")
-  await page.waitForSelector('body > div.RnEpo.Yx5HN > div > div:nth-child(1) > div > div:nth-child(3) > button > svg')
-  await page.click('body > div.RnEpo.Yx5HN > div > div:nth-child(1) > div > div:nth-child(3) > button > svg')
+  await page.waitForSelector('body > div.RnEpo.Yx5HN > div > div > div:nth-child(1) > div > div:nth-child(3) > button')
+  await page.click('body > div.RnEpo.Yx5HN > div > div > div:nth-child(1) > div > div:nth-child(3) > button')
 
   const unfollowers = []
   for (i = 0; i < findFollowers2.length; i++) {
